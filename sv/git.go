@@ -83,7 +83,11 @@ func NewGit(messageProcessor MessageProcessor, cfg TagConfig) *GitImpl {
 
 // LastTag get last tag, if no tag found, return empty.
 func (g GitImpl) LastTag() string {
-	cmd := exec.Command("git", "for-each-ref", "refs/tags/"+*g.tagCfg.Filter, "--sort", "-creatordate", "--format", "%(refname:short)", "--count", "1")
+	match := *g.tagCfg.Filter
+	if match == "" {
+		match = "*"
+	}
+	cmd := exec.Command("git", "describe", "--abbrev=0", "--match="+match)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return ""
